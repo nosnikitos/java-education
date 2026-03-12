@@ -5,10 +5,7 @@ import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.bulgakov.pages.YandexSearchPage;
-
 import java.util.List;
-
-import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.*;
 
 public class QaTest {
