@@ -14,9 +14,8 @@ public class QaTest {
     @DisplayName("Проверить, что цена обучения ментора - 47000 рублей")
     void mentoringPriceShouldBe47000Test() {
 
-        YandexSearchPage yaSearchPage = new YandexSearchPage();
-        open("https://ya.ru/");
-        yaSearchPage
+        new YandexSearchPage()
+                .openPage()
                 .inputSearchText("bulgakov qa")
                 .clickSearchButton()
                 .openMentorsSite()
@@ -32,9 +31,8 @@ public class QaTest {
     @DisplayName("Проверить страничку Ждуна")
     void jdunCheckArticle() {
 
-        open("https://ya.ru/");
-        YandexSearchPage yandexSearchPage = new YandexSearchPage();
-        yandexSearchPage
+        new YandexSearchPage()
+                .openPage()
                 .inputSearchText("Ждун")
                 .clickSearchButton()
                 .openWikipedia()
