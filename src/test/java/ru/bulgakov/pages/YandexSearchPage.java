@@ -10,7 +10,7 @@ public class YandexSearchPage {
     private final SelenideElement searchInput = $("#text");
     private final SelenideElement searchButton = $("[type=submit]");
 
-    public YandexSearchPage openYandex() {
+    public YandexSearchPage openPage() {
         open("https://ya.ru/");
         return this;
     }
