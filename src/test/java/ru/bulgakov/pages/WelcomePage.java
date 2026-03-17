@@ -25,7 +25,6 @@ public class WelcomePage extends BasePage {
 
     public PaymentPage clickRunToPay() {
         runToPay.click();
-        switchToLastWindow();
         return new PaymentPage();
     }
 }
