@@ -1,12 +1,9 @@
 package ru.bulgakov.pages;
 
-import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-
 import java.util.List;
-
-import static com.codeborne.selenide.Condition.text;
+import java.util.stream.Collectors;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
@@ -17,23 +14,19 @@ public class WikipediaPage {
     private final ElementsCollection toc = $$(".toc li"),
                             tocText = $$("#toc .toctext");
 
-    public WikipediaPage checkTitleText(String expectedTitleText) {
-        titleText.shouldHave(text(expectedTitleText));
-        return this;
+    public String getTitleText() {
+        return titleText.getText();
     }
 
-    public WikipediaPage checkTextOnPage(String expectedTextOnPage) {
-        body.shouldHave(text(expectedTextOnPage));
-        return this;
+    public String getPageText() {
+        return body.getText();
     }
 
-    public WikipediaPage checkTocSize(int tocNumber) {
-        toc.shouldHave(CollectionCondition.size(tocNumber));
-        return this;
+    public int getTocSize() {
+        return toc.size();
     }
 
-    public WikipediaPage checkTocText(List<String> expectedTocTexts) {
-        tocText.shouldHave(CollectionCondition.texts(expectedTocTexts));
-        return this;
+    public List<String> getTocText() {
+        return tocText.stream().map(SelenideElement::getText).collect(Collectors.toList());
     }
 }

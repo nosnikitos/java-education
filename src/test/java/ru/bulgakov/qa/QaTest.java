@@ -10,6 +10,8 @@ import ru.bulgakov.pages.WikipediaPage;
 import ru.bulgakov.pages.YandexSearchPage;
 import java.util.List;
 import static com.codeborne.selenide.Selenide.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class QaTest {
 
@@ -48,17 +50,20 @@ public class QaTest {
 
         switchTo().window(1);
 
-        page(WikipediaPage.class)
-                .checkTitleText("Ждун")
-                .checkTextOnPage("интернет-мем")
-                .checkTocSize(8)
-                .checkTocText(List.of("Общие сведения",
-                        "Создание скульптуры",
-                        "Мем",
-                        "Как прозвище (с 2022 года)",
-                        "Ждун в массовой культуре",
-                        "См. также",
-                        "Примечания",
-                        "Ссылки"));
+        WikipediaPage wikipediaPage = page(WikipediaPage.class);
+
+        assertEquals("Ждун", wikipediaPage.getTitleText());
+        assertTrue(wikipediaPage.getPageText().contains("интернет-мем"));
+        assertEquals(8, wikipediaPage.getTocSize());
+        assertEquals(List.of(
+                "Общие сведения",
+                "Создание скульптуры",
+                "Мем",
+                "Как прозвище (с 2022 года)",
+                "Ждун в массовой культуре",
+                "См. также",
+                "Примечания",
+                "Ссылки"
+        ), wikipediaPage.getTocText());
     }
 }
