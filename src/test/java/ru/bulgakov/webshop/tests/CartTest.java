@@ -31,13 +31,17 @@ public class CartTest {
 
         // Получаем имя и цену выбранного товара для последующих проверок
         String itemName = itemPage.itemName();
-        String itemPrice = itemPage.itemPrice();
         String itemQuantity = "2";
+        int processorIndex = 1;
 
         itemPage
-                .selectFirstOption()
+                .selectProcessor(processorIndex)
                 .setQuantity(itemQuantity)
                 .addItemToCart();
+
+        float processorPrice = itemPage.getProcessorPriceByIndex(processorIndex);
+        float basePrice = Float.parseFloat(itemPage.itemPrice());
+        float expectedTotal = (basePrice + processorPrice) * Float.parseFloat(itemQuantity);
 
         DwsBasePage basePage = page(DwsBasePage.class);
 
@@ -60,7 +64,6 @@ public class CartTest {
         assertEquals(itemQuantity, cartPage.getQuantityInput().getAttribute("value"));
 
         // Проверяем, что итоговая стоимость в корзине равна цене товара, умноженной на количество
-        cartPage.getSubtotal().shouldHave(text(String.valueOf(
-                Float.parseFloat(itemPrice) * Float.parseFloat(itemQuantity))));
+        cartPage.getSubtotal().shouldHave(text(String.valueOf(expectedTotal)));
     }
 }
