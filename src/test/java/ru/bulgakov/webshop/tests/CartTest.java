@@ -2,6 +2,7 @@ package ru.bulgakov.webshop.tests;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.bulgakov.junit.BaseTest;
 import ru.bulgakov.webshop.pages.DwsBasePage;
 import ru.bulgakov.webshop.pages.DwsCartPage;
 import ru.bulgakov.webshop.pages.DwsItemPage;
@@ -12,7 +13,7 @@ import static com.codeborne.selenide.Selenide.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.bulgakov.webshop.config.Config.WEB_SHOP_URL;
 
-public class CartTest {
+public class CartTest extends BaseTest {
     private final AuthSteps authSteps = new AuthSteps();
 
     @BeforeEach

@@ -3,6 +3,7 @@ package ru.bulgakov.webshop.pages;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
@@ -14,6 +15,7 @@ public class DwsLoginPage {
     private final SelenideElement checkBoxRememberMe = $("input#RememberMe");
     private final SelenideElement loginButton = $("input.login-button");
     private final ElementsCollection myAccount = $$("div.header-links ul li a");
+    private final SelenideElement fieldValidationError = $("span.field-validation-error");
 
 
     public DwsLoginPage inputEmail(String email) {
@@ -31,8 +33,11 @@ public class DwsLoginPage {
         return this;
     }
 
-    public DwsLoginPage checkUserLoggedIn(String headerEmail) {
+    public void checkUserLoggedIn(String headerEmail) {
         myAccount.get(0).shouldHave(text(headerEmail));
-        return this;
+    }
+
+    public void checkValidationErrorAppear() {
+        fieldValidationError.shouldBe(visible);
     }
 }
