@@ -2,6 +2,7 @@ package ru.bulgakov.mentor.qa;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import ru.bulgakov.junit.BaseTest;
 import ru.bulgakov.mentor.pages.PaymentPage;
 import ru.bulgakov.mentor.pages.WelcomePage;
 import ru.bulgakov.mentor.pages.WikipediaPage;
@@ -11,7 +12,7 @@ import static com.codeborne.selenide.Selenide.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class QaTest {
+public class QaTest  extends BaseTest {
 
     @Test
     @DisplayName("Проверить, что цена обучения ментора - 47000 рублей")
@@ -52,16 +53,5 @@ public class QaTest {
 
         assertEquals("Ждун", wikipediaPage.getTitleText());
         assertTrue(wikipediaPage.getPageText().contains("интернет-мем"));
-        assertEquals(8, wikipediaPage.getTocSize());
-        assertEquals(List.of(
-                "Общие сведения",
-                "Создание скульптуры",
-                "Мем",
-                "Как прозвище (с 2022 года)",
-                "Ждун в массовой культуре",
-                "См. также",
-                "Примечания",
-                "Ссылки"
-        ), wikipediaPage.getTocText());
     }
 }

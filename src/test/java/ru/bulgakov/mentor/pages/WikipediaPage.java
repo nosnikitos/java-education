@@ -21,12 +21,4 @@ public class WikipediaPage {
     public String getPageText() {
         return body.getText();
     }
-
-    public int getTocSize() {
-        return toc.size();
     }
-
-    public List<String> getTocText() {
-        return tocText.stream().map(SelenideElement::getText).collect(Collectors.toList());
-    }
-}
