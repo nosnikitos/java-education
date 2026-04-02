@@ -7,8 +7,8 @@ import ru.bulgakov.webshop.pages.DwsBasePage;
 import ru.bulgakov.webshop.pages.DwsCartPage;
 import ru.bulgakov.webshop.pages.DwsItemPage;
 import ru.bulgakov.webshop.steps.AuthSteps;
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
+
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static ru.bulgakov.webshop.config.Config.WEB_SHOP_URL;
@@ -62,7 +62,7 @@ public class CartTest extends BaseTest {
         cartPage.getProductName().shouldHave(text(itemName));
 
         // Проверяем, что количество товара в корзине соответствует заданному количеству
-        assertEquals(itemQuantity, cartPage.getQuantityInput().getAttribute("value"));
+        cartPage.getQuantityInput().shouldHave(value(itemQuantity));
 
         // Проверяем, что итоговая стоимость в корзине равна цене товара, умноженной на количество
         cartPage.getSubtotal().shouldHave(text(String.valueOf(expectedTotal)));
