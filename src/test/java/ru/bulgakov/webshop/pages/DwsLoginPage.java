@@ -37,7 +37,7 @@ public class DwsLoginPage {
         myAccount.get(0).shouldHave(text(headerEmail));
     }
 
-    public void checkValidationErrorAppear() {
+    public void checkEmailValidationErrorAppear() {
         fieldValidationError.shouldBe(visible);
     }
 }
