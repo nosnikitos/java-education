@@ -23,9 +23,8 @@ public class PaymentPage {
         return this;
     }
 
-    public PaymentPage shouldHavePrice(String expectedPrice) {
+    public void shouldHavePrice(String expectedPrice) {
         priceValue.shouldHave(text(expectedPrice));
-        return this;
     }
 
 }
