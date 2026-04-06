@@ -1,12 +1,13 @@
-package ru.bulgakov.webshop.pages;
+package mytests.demowebshop.pages;
 
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
 
 import java.util.Random;
 
 import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.Selenide.*;
+import static mytests.config.Config.WEB_SHOP_REGISTER_URL;
 
 public class DwsRegisterPage {
 
@@ -24,7 +25,8 @@ public class DwsRegisterPage {
             ;
 
     public void register(String firstName, String lastName, String email, String password) {
-        checkRegisterOpened()
+        openRegistration()
+                .checkRegisterOpened()
                 .selectRandomGender()
                 .inputFirstName(firstName)
                 .inputLastName(lastName)
@@ -34,6 +36,13 @@ public class DwsRegisterPage {
                 .clickRegisterButton();
     }
 
+    @Step("Открыть страницу регистрации - " + WEB_SHOP_REGISTER_URL)
+    public DwsRegisterPage openRegistration() {
+        open(WEB_SHOP_REGISTER_URL);
+        return this;
+    }
+
+    @Step("Выбрать случайный Gender")
     public DwsRegisterPage selectRandomGender() {
         SelenideElement[] genderRadio = { maleGenderRadio, femaleGenderRadio };
         int randomIndex = new Random().nextInt(genderRadio.length);
@@ -41,48 +50,51 @@ public class DwsRegisterPage {
         return this;
     }
 
+    @Step("Ввести First name - {firstName}")
     public DwsRegisterPage inputFirstName(String firstName) {
         fieldFirstName.setValue(firstName);
         return this;
     }
 
+    @Step("Ввести Last name - {lastName}")
     public DwsRegisterPage inputLastName(String lastName) {
         fieldLastName.setValue(lastName);
         return this;
     }
 
+    @Step("Ввести Email - {email}")
     public DwsRegisterPage inputEmail(String email) {
         fieldEmail.setValue(email);
         return this;
     }
 
+    @Step("Ввести Password - {password}")
     public DwsRegisterPage inputPassword(String password) {
         fieldPassword.setValue(password);
         return this;
     }
 
+    @Step("Ввести Confirm password - {confirmPassword}")
     public DwsRegisterPage inputConfirmPassword(String confirmPassword) {
         fieldConfirmPassword.setValue(confirmPassword);
         return this;
     }
 
+    @Step("Нажать на кнопку Register")
     public DwsRegisterPage clickRegisterButton() {
         registerButton.click();
         return this;
     }
 
+    @Step("Проверить, что страница регистрации открыта")
     public DwsRegisterPage checkRegisterOpened() {
         pageTitle.shouldHave(text("Register"));
         return this;
     }
 
+    @Step("Проверить, что появилась надпись успешной регистрации")
     public DwsRegisterPage checkRegisterResultText(String resultText) {
         registerResultText.shouldHave(text(resultText));
-        return this;
-    }
-
-    public DwsRegisterPage checkVisibleUserEmail(String headerEmail) {
-        myAccount.shouldHave(text(headerEmail));
         return this;
     }
 }

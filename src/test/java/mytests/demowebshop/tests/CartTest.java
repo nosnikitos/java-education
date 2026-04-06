@@ -1,17 +1,20 @@
-package ru.bulgakov.webshop.tests;
+package mytests.demowebshop.tests;
 
+import io.qameta.allure.*;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
-import ru.bulgakov.junit.BaseTest;
-import ru.bulgakov.webshop.pages.DwsBasePage;
-import ru.bulgakov.webshop.pages.DwsCartPage;
-import ru.bulgakov.webshop.pages.DwsItemPage;
-import ru.bulgakov.webshop.steps.AuthSteps;
+import mytests.base.BaseTest;
+import mytests.demowebshop.pages.DwsBasePage;
+import mytests.demowebshop.pages.DwsCartPage;
+import mytests.demowebshop.pages.DwsItemPage;
+import mytests.demowebshop.steps.AuthSteps;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static ru.bulgakov.webshop.config.Config.WEB_SHOP_URL;
+import static mytests.config.Config.WEB_SHOP_URL;
 
 public class CartTest extends BaseTest {
     private final AuthSteps authSteps = new AuthSteps();
@@ -22,8 +25,15 @@ public class CartTest extends BaseTest {
     }
 
     @Test
-    void addItemToCartTest() {
-        open(WEB_SHOP_URL, DwsBasePage.class)
+    @DisplayName("Корректное добавление товара в корзину")
+    @Description("Проверяем корректность добавления товара в корзину - появление уведомления о успешном добавлении, " + "отображение количества добавленных товаров, содержимого корзины, названия товара в корзине, итоговую стоимость")
+    @Tag("positive")
+    @Severity(SeverityLevel.BLOCKER)
+    @Owner("nosnikitos")
+    @Link(name = "TASK-006", url = "https://...")
+    void testAddItemToCartTest() {
+        page(DwsBasePage.class)
+                .openWebShop()
                 .hoverTopMenu("Computers")
                 .clickTopSubMenu("Desktops")
                 .openFirstItem();
