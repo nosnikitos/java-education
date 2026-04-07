@@ -14,6 +14,8 @@ import static io.qameta.allure.Allure.step;
 import static mytests.config.Config.*;
 import static mytests.config.Config.WEB_SHOP_LOGIN_URL;
 
+@Epic("Личный кабинет пользователя")
+@Feature("Регистрация")
 public class RegistrationTest extends BaseTest {
     private static final Faker faker = new Faker();
 
@@ -22,6 +24,7 @@ public class RegistrationTest extends BaseTest {
     @Description("Регистрируем нового пользователя со случайными данными через UI")
     @Tag("positive")
     @Severity(SeverityLevel.CRITICAL)
+    @Story("Регистрация с валидными данными")
     @Owner("nosnikitos")
     @Link(name = "TASK-003", url = "https://...")
     void registrationTest() {

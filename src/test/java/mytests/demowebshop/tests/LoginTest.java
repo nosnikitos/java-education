@@ -13,7 +13,8 @@ import static com.codeborne.selenide.Selenide.*;
 import static io.qameta.allure.Allure.step;
 import static mytests.config.Config.*;
 
-
+@Epic("Личный кабинет пользователя")
+@Feature("Авторизация")
 public class LoginTest extends BaseTest {
     private static final Faker faker = new Faker();
     private String email;
@@ -48,6 +49,7 @@ public class LoginTest extends BaseTest {
         @Tag("positive")
         @Severity(SeverityLevel.CRITICAL)
         @Owner("nosnikitos")
+        @Story("Регистрация с валидными данными")
         @Link(name = "TASK-004", url = "https://...")
         void testSuccessfulLogin() {
 
@@ -65,6 +67,7 @@ public class LoginTest extends BaseTest {
     @Tag("negative")
     @Severity(SeverityLevel.NORMAL)
     @Owner("nosnikitos")
+    @Story("Ошибка валидации email")
     @Link(name = "TASK-005", url = "https://...")
     @ValueSource(strings = {
             "plainaddress",

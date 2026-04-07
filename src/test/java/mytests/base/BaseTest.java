@@ -1,12 +1,16 @@
 package mytests.base;
 
 import com.codeborne.selenide.Configuration;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.selenide.AllureSelenide;
+import mytests.utils.AttachManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
+
+
+import static com.codeborne.selenide.Selenide.clearBrowserCookies;
+import static com.codeborne.selenide.Selenide.clearBrowserLocalStorage;
+import static io.qameta.allure.Allure.step;
 
 
 public class BaseTest {
@@ -22,8 +26,11 @@ public class BaseTest {
     }
 
     @AfterEach
-    void clearBrowser() {
-        Selenide.clearBrowserLocalStorage();
-        Selenide.clearBrowserLocalStorage();
+    void tearDown() {
+        AttachManager.attachAll();
+        step("Clear Browser", () -> {
+            clearBrowserCookies();
+            clearBrowserLocalStorage();
+        });
     }
 }

@@ -5,8 +5,8 @@ import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.*;
-import static mytests.config.Config.WEB_SHOP_REGISTER_URL;
 import static mytests.config.Config.WEB_SHOP_URL;
 
 public class DwsBasePage {
@@ -43,6 +43,7 @@ public class DwsBasePage {
         // наводим на кнопки меню курсор
         topMenu
                 .findBy(text(topMenuItem))
+                .shouldBe(visible)
                 .hover();
         return this;
     }
@@ -52,6 +53,7 @@ public class DwsBasePage {
         //кликаем по кнопке меню
         topMenu
                 .findBy(text(topMenuItem))
+                .shouldBe(visible)
                 .click();
         return new DwsCatalogPage();
     }
@@ -74,18 +76,13 @@ public class DwsBasePage {
     }
 
     @Step("Перейти в Корзину")
-    public DwsCartPage openCart() {
+    public DwsCartPage clickCart() {
         cartButton.click();
         return new DwsCartPage();
     }
 
     @Step("Проверить отображение {headerEmail} в шапке сайта")
     public void checkVisibleUserEmail(String headerEmail) {
-        myAccount.shouldHave(text(headerEmail));
-    }
-
-    @Step("Проверить отображение {headerEmail} в шапке сайта")
-    public void checkUserLoggedIn(String headerEmail) {
         myAccount.shouldHave(text(headerEmail));
     }
 }

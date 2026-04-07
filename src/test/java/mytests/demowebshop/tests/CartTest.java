@@ -13,20 +13,22 @@ import mytests.demowebshop.steps.AuthSteps;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
+import static io.qameta.allure.Allure.step;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static mytests.config.Config.WEB_SHOP_URL;
 
+@Epic("E-commerce")
+@Feature("Корзина")
 public class CartTest extends BaseTest {
     private final AuthSteps authSteps = new AuthSteps();
 
     @BeforeEach
     void beforeEach() {
-        authSteps.registerNewUser();
+        step("Регистрация нового пользователя", authSteps::registerNewUser);
     }
 
     @Test
     @DisplayName("Корректное добавление товара в корзину")
-    @Description("Проверяем корректность добавления товара в корзину - появление уведомления о успешном добавлении, " + "отображение количества добавленных товаров, содержимого корзины, названия товара в корзине, итоговую стоимость")
+    @Description("Проверяем добавление товара в корзину: уведомление, количество, содержимое, название и итоговая стоимость")
     @Tag("positive")
     @Severity(SeverityLevel.BLOCKER)
     @Owner("nosnikitos")
@@ -40,8 +42,7 @@ public class CartTest extends BaseTest {
 
         DwsItemPage itemPage = page(DwsItemPage.class);
 
-        // Получаем имя и цену выбранного товара для последующих проверок
-        String itemName = itemPage.itemName();
+        String itemName = step("Получить имя выбранного товара", itemPage::itemName);
         String itemQuantity = "2";
         int processorIndex = 1;
 
@@ -50,31 +51,30 @@ public class CartTest extends BaseTest {
                 .setQuantity(itemQuantity)
                 .addItemToCart();
 
-        float processorPrice = itemPage.getProcessorPriceByIndex(processorIndex);
-        float basePrice = Float.parseFloat(itemPage.itemPrice());
+        float processorPrice = step("Получить цену выбранного процессора",
+                () -> itemPage.getProcessorPriceByIndex(processorIndex));
+        float basePrice = Float.parseFloat(step("Получить базовую цену товара", itemPage::itemPrice));
         float expectedTotal = (basePrice + processorPrice) * Float.parseFloat(itemQuantity);
 
         DwsBasePage basePage = page(DwsBasePage.class);
 
-        // Проверяем, что появляется уведомление об успешном добавлении товара в корзину
-        basePage.getSuccessNotification()
-                .shouldBe(visible)
-                .shouldHave(text("The product has been added"));
+        step("Проверить уведомление об успешном добавлении товара", () -> {
+            basePage.getSuccessNotification()
+                    .shouldBe(visible)
+                    .shouldHave(text("The product has been added"));
+        });
 
-        // Проверяем, что в шапке сайта отображается правильное количество добавленных товаров
-        basePage.getCartQuantity()
-                .shouldHave(text("(" + itemQuantity + ")"));
+        step("Проверить количество товаров в шапке сайта", () -> {
+            basePage.getCartQuantity()
+                    .shouldHave(text("(" + itemQuantity + ")"));
+        });
 
-        // Открываем страницу корзины для проверки содержимого
-        DwsCartPage cartPage = basePage.openCart();
+        DwsCartPage cartPage = basePage.clickCart();
 
-        // Проверяем, что имя товара в корзине совпадает с выбранным ранее
-        cartPage.getProductName().shouldHave(text(itemName));
-
-        // Проверяем, что количество товара в корзине соответствует заданному количеству
-        cartPage.getQuantityInput().shouldHave(value(itemQuantity));
-
-        // Проверяем, что итоговая стоимость в корзине равна цене товара, умноженной на количество
-        cartPage.getSubtotal().shouldHave(text(String.valueOf(expectedTotal)));
+        step("Проверить содержимое корзины", () -> {
+            cartPage.getProductName().shouldHave(text(itemName)); // Проверяем, что имя товара в корзине совпадает с выбранным ранее
+            cartPage.getQuantityInput().shouldHave(value(itemQuantity)); // Проверяем, что количество товара в корзине соответствует заданному количеству
+            cartPage.getSubtotal().shouldHave(text(String.valueOf(expectedTotal))); // Проверяем, что итоговая стоимость в корзине равна цене товара, умноженной на количество
+        });
     }
 }
