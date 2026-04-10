@@ -1,7 +1,8 @@
-package ru.bulgakov.webshop.pages;
+package mytests.demowebshop.pages;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
 
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
@@ -24,6 +25,7 @@ public class DwsItemPage {
         return itemPrice.getText();
     }
 
+    @Step("Выбрать процессор")
     public DwsItemPage selectProcessor(int processorIndex) {
         if (processorIndex < 0 || processorIndex > 2) {
             throw new IllegalArgumentException("Processor index must be 0, 1 or 2");
@@ -38,6 +40,7 @@ public class DwsItemPage {
 
         return this;
     }
+
     public float getProcessorPriceByIndex(int processorIndex) {
         if (processorIndex < 0 || processorIndex > 2) {
             throw new IllegalArgumentException("Processor index must be 0, 1 or 2");
@@ -62,13 +65,14 @@ public class DwsItemPage {
         return Float.parseFloat(price);
     }
 
+    @Step("Вписать количество товаров - {quantity}")
     public DwsItemPage setQuantity(String quantity) {
         quantityInput.setValue(quantity);
         return this;
     }
 
-    public DwsItemPage addItemToCart() {
+    @Step("Нажать кнопку добавления в корзину")
+    public void addItemToCart() {
         addToCartButton.click();
-        return this;
     }
 }

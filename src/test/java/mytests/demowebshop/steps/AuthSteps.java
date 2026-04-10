@@ -1,15 +1,15 @@
-package ru.bulgakov.webshop.steps;
+package mytests.demowebshop.steps;
 
 import net.datafaker.Faker;
-import ru.bulgakov.webshop.pages.DwsRegisterPage;
+import mytests.demowebshop.pages.DwsRegisterPage;
 import static com.codeborne.selenide.Selenide.*;
-import static ru.bulgakov.webshop.config.Config.WEB_SHOP_REGISTER_URL;
+import static mytests.config.Config.WEB_SHOP_REGISTER_URL;
 
 public class AuthSteps {
     private static final Faker faker = new Faker();
 
     public void registerNewUser() {
-        open(WEB_SHOP_REGISTER_URL, DwsRegisterPage.class)
+        page(DwsRegisterPage.class)
                 .register(
                         faker.name().firstName(),
                         faker.name().lastName(),

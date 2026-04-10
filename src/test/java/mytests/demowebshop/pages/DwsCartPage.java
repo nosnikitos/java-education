@@ -1,7 +1,7 @@
-package ru.bulgakov.webshop.pages;
+package mytests.demowebshop.pages;
 
 import com.codeborne.selenide.SelenideElement;
-import com.codeborne.selenide.Condition;
+
 import static com.codeborne.selenide.Selenide.$;
 
 public class DwsCartPage {
