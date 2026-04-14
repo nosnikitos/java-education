@@ -16,12 +16,8 @@ import static io.qameta.allure.Allure.step;
 public class BaseTest {
 
     @BeforeAll
-    static void setUpSelenideLogger() {
+    static void setUp() {
         SelenideLogger.addListener("AllureSelenide", new AllureSelenide( ));
-    }
-
-    @BeforeAll
-    static void setUpBrowserSize() {
         Configuration.browserSize = "1920x1080";
     }
 
