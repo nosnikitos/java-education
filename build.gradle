@@ -29,8 +29,10 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.3'
     testImplementation 'com.codeborne:selenide:7.13.0'
     testImplementation 'net.datafaker:datafaker:2.5.3'
+    testImplementation 'org.aeonbits.owner:owner:1.0.12'
 }
 
 test {
     useJUnitPlatform()
+    systemProperties System.getProperties()
 }
