@@ -4,6 +4,7 @@ import io.qameta.allure.*;
 import mytests.utils.BrowserUtils;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.Test;
 import mytests.base.BaseTest;
 import mytests.ivanbulgakovqa.pages.PaymentPage;
@@ -20,7 +21,7 @@ public class QaTest extends BaseTest {
     @Test
     @DisplayName("Проверить, что цена обучения ментора - 47000 рублей")
     @Description("Проверяем, что отображаемая цена обучения на сайте корректна")
-    @Tag("positive")
+    @Tags({@Tag("UI"), @Tag("positive")})
     @Severity(SeverityLevel.NORMAL)
     @Owner("nosnikitos")
     @Link(name = "TASK-001", url = "https://...")
@@ -48,7 +49,7 @@ public class QaTest extends BaseTest {
     @Test
     @DisplayName("Проверить страничку Ждуна")
     @Description("Проверяем корректность названия страницы и страница содержит информацию о том, что это интернет-мем")
-    @Tag("positive")
+    @Tags({@Tag("UI"), @Tag("positive")})
     @Severity(SeverityLevel.NORMAL)
     @Owner("nosnikitos")
     @Link(name = "TASK-002", url = "https://...")

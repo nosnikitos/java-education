@@ -46,7 +46,7 @@ public class LoginTest extends BaseTest {
         @Test
         @DisplayName("Успешная авторизация")
         @Description("Проверяем успешную авторизацию(логин) на UI")
-        @Tag("positive")
+        @Tags({@Tag("UI"), @Tag("positive")})
         @Severity(SeverityLevel.CRITICAL)
         @Owner("nosnikitos")
         @Story("Регистрация с валидными данными")
@@ -64,7 +64,7 @@ public class LoginTest extends BaseTest {
     @ParameterizedTest
     @DisplayName("Вывод ошибки валидации email в логине")
     @Description("Проверка, что при вводе невалидного емейла в форме логина выходит ошибка валидации")
-    @Tag("negative")
+    @Tags({@Tag("UI"), @Tag("negative")})
     @Severity(SeverityLevel.NORMAL)
     @Owner("nosnikitos")
     @Story("Ошибка валидации email")
