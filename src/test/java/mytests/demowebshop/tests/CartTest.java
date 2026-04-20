@@ -1,10 +1,7 @@
 package mytests.demowebshop.tests;
 
 import io.qameta.allure.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import mytests.base.BaseTest;
 import mytests.demowebshop.pages.DwsBasePage;
 import mytests.demowebshop.pages.DwsCartPage;
@@ -29,7 +26,7 @@ public class CartTest extends BaseTest {
     @Test
     @DisplayName("Корректное добавление товара в корзину")
     @Description("Проверяем добавление товара в корзину: уведомление, количество, содержимое, название и итоговая стоимость")
-    @Tag("positive")
+    @Tags({@Tag("UI"), @Tag("positive")})
     @Severity(SeverityLevel.BLOCKER)
     @Owner("nosnikitos")
     @Link(name = "TASK-006", url = "https://...")

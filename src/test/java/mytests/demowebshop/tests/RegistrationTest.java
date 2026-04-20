@@ -6,6 +6,7 @@ import mytests.demowebshop.pages.DwsRegisterPage;
 import net.datafaker.Faker;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.Test;
 import mytests.base.BaseTest;
 import mytests.demowebshop.pages.DwsBasePage;
@@ -22,7 +23,7 @@ public class RegistrationTest extends BaseTest {
     @Test
     @DisplayName("Успешная регистрация нового пользователя")
     @Description("Регистрируем нового пользователя со случайными данными через UI")
-    @Tag("positive")
+    @Tags({@Tag("UI"), @Tag("positive")})
     @Severity(SeverityLevel.CRITICAL)
     @Story("Регистрация с валидными данными")
     @Owner("nosnikitos")
