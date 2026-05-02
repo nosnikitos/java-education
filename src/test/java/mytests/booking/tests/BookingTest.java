@@ -25,9 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BookingTest {
-    public static final String BOOKING_URL = "https://restful-booker.herokuapp.com";
+    public static final String BOOKER_AUTH_URL = "https://restful-booker.herokuapp.com/auth";
+    public static final String BOOKER_BOOKING_URL = "https://restful-booker.herokuapp.com/booking";
     public static final String AUTH_USER = "admin";
     public static final String AUTH_PASS = "password123";
+//    ну без конфига пока тут будут
 
     @BeforeAll
     static void setUp () {
@@ -43,17 +45,16 @@ public class BookingTest {
         AuthResponse resp = given()
                 .contentType(ContentType.JSON)
                 .body(new AuthRequest(AUTH_USER, AUTH_PASS))
-                .post(BOOKING_URL + "/auth")
+                .post(BOOKER_AUTH_URL)
                 .then()
                 .statusCode(200)
-                .body("token", notNullValue())
                 .extract().as(AuthResponse.class);
 
         assertThat(resp.getToken()).isNotNull();
     }
 
     @ParameterizedTest
-    @DisplayName("Создание нового токена авторизации в API c невалидными данными")
+    @DisplayName("Создание нового токена авторизации в API - c невалидными данными")
     @Tags({@Tag("API"), @Tag("negative")})
     @Owner("nosnikitos")
     @MethodSource("invalidAuthData")
@@ -61,14 +62,14 @@ public class BookingTest {
         AuthResponse resp = given()
                 .contentType(ContentType.JSON)
                 .body(requestBody)
-                .post(BOOKING_URL + "/auth")
+                .post(BOOKER_AUTH_URL)
                 .then()
                 .statusCode(200)
-                .body("reason", equalTo("Bad credentials"))
                 .extract().as(AuthResponse.class);
 
         assertThat(resp.getReason()).isEqualTo("Bad credentials");
 //        сорри тут проверка одна на всех, смысла нет в разных, апишка скудна на ошибки
+//        можно было б на логин/пароль неверные 401 проверять, на остальное 400
     }
 
     @Test
@@ -79,13 +80,13 @@ public class BookingTest {
 
         AuthResponse resp = given()
                 .contentType(ContentType.JSON)
-                .post(BOOKING_URL + "/auth")
+                .post(BOOKER_AUTH_URL)
                 .then()
                 .statusCode(200)
-                .body("reason", equalTo("Bad credentials"))
                 .extract().as(AuthResponse.class);
 
         assertThat(resp.getReason()).isEqualTo("Bad credentials");
+//        ну тут тоже 400 была б
     }
 
     @Test
@@ -93,11 +94,11 @@ public class BookingTest {
     @Tags({@Tag("API"), @Tag("positive")})
     @Owner("nosnikitos")
     void createBookingTest () {
-        CreateBookingDTO req = buildBookingRequest();
+        CreateBookingDTO req = buildValidBookingRequest();
         CreateBookingResponse resp = given()
                 .contentType(ContentType.JSON)
                 .body(req)
-                .post(BOOKING_URL + "/booking")
+                .post(BOOKER_BOOKING_URL)
                 .then()
                 .statusCode(200)
                 .extract().as(CreateBookingResponse.class);
@@ -108,6 +109,8 @@ public class BookingTest {
                         .usingRecursiveComparison()
                         .isEqualTo(req)
         );
+//        ну тут че писать то, все понятно ассерт олл и usingRecursiveComparison ии подсказал, хотя без него тож работает
+//        но без него типо если что-то одно не совпадет не видно будет что именно
     }
 
     @ParameterizedTest
@@ -120,12 +123,13 @@ public class BookingTest {
             Response response = given()
                 .contentType(ContentType.JSON)
                 .body(requestBody)
-                .post(BOOKING_URL + "/booking")
+                .post(BOOKER_BOOKING_URL)
                 .then()
                 .statusCode(500)
                     .extract().response();
 
             assertThat(response.statusCode()).isEqualTo(500);
+//            ну что тут проверять, тоже все печально, на даты ему пофиг, на -1000 тоже, вот без полей сделал
 
     }
 
@@ -137,15 +141,16 @@ public class BookingTest {
 
         Response response = given()
                 .contentType(ContentType.JSON)
-                .post(BOOKING_URL + "/booking")
+                .post(BOOKER_BOOKING_URL)
                 .then()
                 .statusCode(500)
                 .extract().response();
 
         assertThat(response.statusCode()).isEqualTo(500);
+//        и тут тоже все печально, я высасывал тесты как мог
     }
 
-    private static CreateBookingDTO buildBookingRequest() {
+    private static CreateBookingDTO buildValidBookingRequest() {
         return CreateBookingDTO.builder()
                 .firstname("Nikita")
                 .lastname("Nozdrin")
@@ -167,57 +172,20 @@ public class BookingTest {
         );
     }
     static Stream<Arguments> invalidBookingDataWithoutField() {
+        CreateBookingDTO valid = buildValidBookingRequest();
+
         return Stream.of(
-                Arguments.of("Без поля firstname", CreateBookingDTO.builder()
-                        .lastname("Nozdrin")
-                        .totalprice(1000)
-                        .depositpaid(true)
-                        .bookingdates(new CreateBookingDTO.BookingDates("2026-05-22", "2026-05-26"))
-                        .additionalneeds("Need water")
-                        .build()
-                ),
-                Arguments.of("Без поля lastname", CreateBookingDTO.builder()
-                        .firstname("Nikita")
-                        .totalprice(1000)
-                        .depositpaid(true)
-                        .bookingdates(new CreateBookingDTO.BookingDates("2026-05-22", "2026-05-26"))
-                        .additionalneeds("Need water")
-                        .build()
-                ),
-                Arguments.of("Без поля depositpaid", CreateBookingDTO.builder()
-                        .firstname("Nikita")
-                        .lastname("Nozdrin")
-                        .totalprice(1000)
-                        .bookingdates(new CreateBookingDTO.BookingDates("2026-05-22", "2026-05-26"))
-                        .additionalneeds("Need water")
-                        .build()
-                ),
-                Arguments.of("Без поля totalprice", CreateBookingDTO.builder()
-                        .firstname("Nikita")
-                        .lastname("Nozdrin")
-                        .depositpaid(true)
-                        .bookingdates(new CreateBookingDTO.BookingDates("2026-05-22", "2026-05-26"))
-                        .additionalneeds("Need water")
-                        .build()
-                ),
-                Arguments.of("Без поля checkin", CreateBookingDTO.builder()
-                        .firstname("Nikita")
-                        .lastname("Nozdrin")
-                        .depositpaid(true)
-                        .totalprice(1000)
+                Arguments.of("Без поля firstname", valid.toBuilder().firstname(null).build()),
+                Arguments.of("Без поля lastname", valid.toBuilder().lastname(null).build()),
+                Arguments.of("Без поля depositpaid", valid.toBuilder().depositpaid(null).build()),
+                Arguments.of("Без поля totalprice", valid.toBuilder().totalprice(null).build()),
+                Arguments.of("Без поля checkin", valid.toBuilder()
                         .bookingdates(new CreateBookingDTO.BookingDates(null, "2026-05-26"))
-                        .additionalneeds("Need water")
-                        .build()
-                ),
-                Arguments.of("Без поля checkout", CreateBookingDTO.builder()
-                        .firstname("Nikita")
-                        .lastname("Nozdrin")
-                        .depositpaid(true)
-                        .totalprice(1000)
+                        .build()),
+                Arguments.of("Без поля checkout", valid.toBuilder()
                         .bookingdates(new CreateBookingDTO.BookingDates("2026-05-22", null))
-                        .additionalneeds("Need water")
-                        .build()
-                )
+                        .build())
         );
+        //        ну тут мне ии подсказал @Builder(toBuilder = true), я снимаю шляпу, у меня простыня была в коммите можешь чекнуть
     }
 }
