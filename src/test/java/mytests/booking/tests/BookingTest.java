@@ -7,29 +7,33 @@ import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import mytests.booking.dto.AuthRequest;
+import mytests.booking.BookingApiClient;
+import mytests.booking.config.BookingConfig;
 import mytests.booking.dto.AuthResponse;
-import mytests.booking.dto.CreateBookingDTO;
-import mytests.booking.dto.CreateBookingResponse;
+import mytests.booking.dto.BookingDTO;
+import mytests.booking.dto.BookingResponse;
+import net.datafaker.Faker;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-
 import java.util.stream.Stream;
-
 import static io.restassured.RestAssured.given;
+import static mytests.booking.BookingApiClient.BOOKER_AUTH_URL;
+import static mytests.booking.BookingApiClient.BOOKER_BOOKING_URL;
+import static mytests.booking.config.BookingApiConfig.getBookingConfig;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 
 public class BookingTest {
-    public static final String BOOKER_AUTH_URL = "https://restful-booker.herokuapp.com/auth";
-    public static final String BOOKER_BOOKING_URL = "https://restful-booker.herokuapp.com/booking";
-    public static final String AUTH_USER = "admin";
-    public static final String AUTH_PASS = "password123";
-//    ну без конфига пока тут будут
+
+    private static final BookingConfig CFG = getBookingConfig();
+    private static final String
+            username = CFG.username(),
+            password = CFG.password();
+    public static final Faker faker = new Faker();
+    private final BookingApiClient bookingClient = new BookingApiClient();
 
     @BeforeAll
     static void setUp () {
@@ -42,15 +46,9 @@ public class BookingTest {
     @Tags({@Tag("API"), @Tag("positive")})
     @Owner("nosnikitos")
     void authTest () {
-        AuthResponse resp = given()
-                .contentType(ContentType.JSON)
-                .body(new AuthRequest(AUTH_USER, AUTH_PASS))
-                .post(BOOKER_AUTH_URL)
-                .then()
-                .statusCode(200)
-                .extract().as(AuthResponse.class);
-
-        assertThat(resp.getToken()).isNotNull();
+        Response authResp = bookingClient.auth(username, password);
+        assertThat(authResp.statusCode()).isEqualTo(200);
+        assertThat(authResp.as(AuthResponse.class).getToken()).isNotNull();
     }
 
     @ParameterizedTest
@@ -58,18 +56,11 @@ public class BookingTest {
     @Tags({@Tag("API"), @Tag("negative")})
     @Owner("nosnikitos")
     @MethodSource("invalidAuthData")
-    void authWithInvalidDataTest(String description, Object requestBody) {
-        AuthResponse resp = given()
-                .contentType(ContentType.JSON)
-                .body(requestBody)
-                .post(BOOKER_AUTH_URL)
-                .then()
-                .statusCode(200)
-                .extract().as(AuthResponse.class);
+    void authWithInvalidDataTest(String description, String username, String password) {
 
-        assertThat(resp.getReason()).isEqualTo("Bad credentials");
-//        сорри тут проверка одна на всех, смысла нет в разных, апишка скудна на ошибки
-//        можно было б на логин/пароль неверные 401 проверять, на остальное 400
+        Response respAuth = bookingClient.auth(username, password);
+
+        assertThat(respAuth.as(AuthResponse.class).getReason()).as(description).isEqualTo("Bad credentials");
     }
 
     @Test
@@ -86,7 +77,6 @@ public class BookingTest {
                 .extract().as(AuthResponse.class);
 
         assertThat(resp.getReason()).isEqualTo("Bad credentials");
-//        ну тут тоже 400 была б
     }
 
     @Test
@@ -94,23 +84,19 @@ public class BookingTest {
     @Tags({@Tag("API"), @Tag("positive")})
     @Owner("nosnikitos")
     void createBookingTest () {
-        CreateBookingDTO req = buildValidBookingRequest();
-        CreateBookingResponse resp = given()
-                .contentType(ContentType.JSON)
-                .body(req)
-                .post(BOOKER_BOOKING_URL)
-                .then()
-                .statusCode(200)
-                .extract().as(CreateBookingResponse.class);
+        BookingDTO requestBody = buildValidBookingRequestBody();
+        Response response = bookingClient.createBooking(requestBody);
+
+        assertThat(response.statusCode()).isEqualTo(200);
+
+        BookingResponse responseBody = response.as(BookingResponse.class);
 
         assertAll(
-                () -> assertThat(resp.getBookingid()).isPositive(),
-                () -> assertThat(resp.getBooking())
+                () -> assertThat(responseBody.getBookingid()).isPositive(),
+                () -> assertThat(responseBody.getBooking())
                         .usingRecursiveComparison()
-                        .isEqualTo(req)
+                        .isEqualTo(requestBody)
         );
-//        ну тут че писать то, все понятно ассерт олл и usingRecursiveComparison ии подсказал, хотя без него тож работает
-//        но без него типо если что-то одно не совпадет не видно будет что именно
     }
 
     @ParameterizedTest
@@ -118,19 +104,11 @@ public class BookingTest {
     @Tags({@Tag("API"), @Tag("negative")})
     @Owner("nosnikitos")
     @MethodSource("invalidBookingDataWithoutField")
-    void createBookingWithoutRequiredFieldTest (String description, Object requestBody) {
+    void createBookingWithoutRequiredFieldTest (String description, BookingDTO requestBody) {
 
-            Response response = given()
-                .contentType(ContentType.JSON)
-                .body(requestBody)
-                .post(BOOKER_BOOKING_URL)
-                .then()
-                .statusCode(500)
-                    .extract().response();
+            Response response = bookingClient.createBooking(requestBody);
 
-            assertThat(response.statusCode()).isEqualTo(500);
-//            ну что тут проверять, тоже все печально, на даты ему пофиг, на -1000 тоже, вот без полей сделал
-
+            assertThat(response.statusCode()).as(description).isEqualTo(500);
     }
 
     @Test
@@ -147,32 +125,50 @@ public class BookingTest {
                 .extract().response();
 
         assertThat(response.statusCode()).isEqualTo(500);
-//        и тут тоже все печально, я высасывал тесты как мог
     }
 
-    private static CreateBookingDTO buildValidBookingRequest() {
-        return CreateBookingDTO.builder()
-                .firstname("Nikita")
-                .lastname("Nozdrin")
-                .totalprice(1000)
-                .depositpaid(true)
-                .bookingdates(new CreateBookingDTO.BookingDates("2026-05-22", "2026-05-26"))
-                .additionalneeds("Need whores")
+    @Test
+    @DisplayName("Апдейт бронирования в API")
+    @Tags({@Tag("API"), @Tag("positive")})
+    @Owner("nosnikitos")
+    void updateBookingTest() {
+        BookingDTO createRequestBody = buildValidBookingRequestBody();
+        Response createResponse = bookingClient.createBooking(createRequestBody);
+
+        assertThat(createResponse.statusCode()).isEqualTo(200);
+
+        Integer bookingId = createResponse.as(BookingResponse.class).getBookingid();
+        BookingDTO updateRequestBody = buildValidBookingRequestBody();
+        Response updateResponse = bookingClient.updateBooking(updateRequestBody, bookingId);
+
+        assertThat(updateResponse.statusCode()).isEqualTo(200);
+
+        BookingDTO updateResponseBody = updateResponse.as(BookingDTO.class);
+
+        assertThat(updateResponseBody).usingRecursiveComparison().isEqualTo(updateRequestBody);
+    }
+
+    private static BookingDTO buildValidBookingRequestBody() {
+        return BookingDTO.builder()
+                .firstname(faker.name().firstName())
+                .lastname(faker.name().lastName())
+                .totalprice(faker.number().numberBetween(1000, 10000))
+                .depositpaid(faker.bool().bool())
+                .bookingdates(new BookingDTO.BookingDates("2026-05-22", "2026-05-26"))
+                .additionalneeds(faker.football().competitions())
                 .build();
     }
-
     static Stream<Arguments> invalidAuthData() {
         return Stream.of(
-                Arguments.of("Неверный пароль", (new AuthRequest(AUTH_USER, "xxx"))),
-                Arguments.of("Неверный логин", (new AuthRequest("xxx", AUTH_PASS))),
-                Arguments.of("Пустой пароль", (new AuthRequest(AUTH_USER, ""))),
-                Arguments.of("Пустой логин", (new AuthRequest("", AUTH_PASS))),
-                Arguments.of("null значения", (new AuthRequest())),
-                Arguments.of("Пустое body", "{}")
+                Arguments.of("Неверный пароль", username, "xxx"),
+                Arguments.of("Неверный логин", "xxx", password),
+                Arguments.of("Пустой пароль", username, ""),
+                Arguments.of("Пустой логин", "", password),
+                Arguments.of("null значения", null, null)
         );
     }
     static Stream<Arguments> invalidBookingDataWithoutField() {
-        CreateBookingDTO valid = buildValidBookingRequest();
+        BookingDTO valid = buildValidBookingRequestBody();
 
         return Stream.of(
                 Arguments.of("Без поля firstname", valid.toBuilder().firstname(null).build()),
@@ -180,12 +176,11 @@ public class BookingTest {
                 Arguments.of("Без поля depositpaid", valid.toBuilder().depositpaid(null).build()),
                 Arguments.of("Без поля totalprice", valid.toBuilder().totalprice(null).build()),
                 Arguments.of("Без поля checkin", valid.toBuilder()
-                        .bookingdates(new CreateBookingDTO.BookingDates(null, "2026-05-26"))
+                        .bookingdates(new BookingDTO.BookingDates(null, "2026-05-26"))
                         .build()),
                 Arguments.of("Без поля checkout", valid.toBuilder()
-                        .bookingdates(new CreateBookingDTO.BookingDates("2026-05-22", null))
+                        .bookingdates(new BookingDTO.BookingDates("2026-05-22", null))
                         .build())
         );
-        //        ну тут мне ии подсказал @Builder(toBuilder = true), я снимаю шляпу, у меня простыня была в коммите можешь чекнуть
     }
 }

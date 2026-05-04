@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CreateBookingDTO {
+public class BookingDTO {
     private String firstname;
     private String lastname;
     private Integer totalprice;
