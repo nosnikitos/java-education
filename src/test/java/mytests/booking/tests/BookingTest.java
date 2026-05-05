@@ -164,6 +164,20 @@ public class BookingTest extends BaseApiTest {
         assertThat(partialUpdateResponseBody).usingRecursiveComparison().isEqualTo(expectedPartialUpdateResponseBody);
     }
 
+    @Test
+    @DisplayName("Удаление бронирования в API")
+    @Tags({@Tag("API"), @Tag("positive")})
+    @Owner("nosnikitos")
+    void deleteBookingTest() {
+        Integer bookingId = bookingClient.createBooking(buildValidBookingRequestBody())
+                .as(BookingResponse.class).getBookingid();
+
+        Response deleteResp = bookingClient.deleteBooking(bookingId);
+        assertThat(deleteResp.statusCode()).isEqualTo(201);
+
+        Response getBookingResp = bookingClient.getBooking(bookingId);
+        assertThat(getBookingResp.statusCode()).isEqualTo(404);
+    }
 
     static Stream<Arguments> invalidAuthData() {
         return Stream.of(

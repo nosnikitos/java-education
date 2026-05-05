@@ -63,8 +63,31 @@ public class BookingApiClient {
                 .extract().response();
     }
 
+    @Step("Удалить бронирование с id - {id}")
+    public Response deleteBooking(Integer id) {
+        return given()
+                .cookie("token", getToken())
+                .contentType(ContentType.JSON)
+                .pathParam("BOOKING_ID", id)
+                .delete(BOOKER_BOOKING_URL + "/{BOOKING_ID}")
+                .then()
+                .extract().response();
+    }
+
+    @Step("Получить бронирование по ID - {id}")
+    public Response getBooking(Integer id) {
+        return given()
+                .contentType(ContentType.JSON)
+                .pathParam("BOOKING_ID", id)
+                .get(BOOKER_BOOKING_URL + "/{BOOKING_ID}")
+                .then()
+                .extract().response();
+    }
+
     @Step("Получить токен авторизации")
     private String getToken() {
         return auth(CFG.username(), CFG.password()).as(AuthResponse.class).getToken();
     }
+
+
 }
