@@ -1,5 +1,6 @@
-package mytests.booking;
+package mytests.booking.steps;
 
+import io.qameta.allure.Step;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import mytests.booking.config.BookingConfig;
@@ -18,6 +19,7 @@ public class BookingApiClient {
     public static final String BOOKER_AUTH_URL = CFG.url() + "/auth";
     public static final String BOOKER_BOOKING_URL = CFG.url() + "/booking";
 
+    @Step("Авторизироваться")
     public Response auth(String user, String password) {
         return given()
                 .contentType(ContentType.JSON)
@@ -27,6 +29,7 @@ public class BookingApiClient {
                 .extract().response();
     }
 
+    @Step("Создать бронирование")
     public Response createBooking(BookingDTO booking) {
         return given()
                 .contentType(ContentType.JSON)
@@ -36,7 +39,8 @@ public class BookingApiClient {
                 .extract().response();
     }
 
-    public Response updateBooking(BookingDTO booking, Integer id) {
+    @Step("Полностью обновить бронирование")
+    public Response updateBooking(Integer id, BookingDTO booking) {
         return given()
                 .cookie("token", getToken())
                 .contentType(ContentType.JSON)
@@ -47,6 +51,19 @@ public class BookingApiClient {
                 .extract().response();
     }
 
+    @Step("Частично обновить бронирование")
+    public Response partialUpdateBooking(Integer id, BookingDTO booking) {
+        return given()
+                .cookie("token", getToken())
+                .contentType(ContentType.JSON)
+                .body(booking)
+                .pathParam("BOOKING_ID", id)
+                .patch(BOOKER_BOOKING_URL + "/{BOOKING_ID}")
+                .then()
+                .extract().response();
+    }
+
+    @Step("Получить токен авторизации")
     private String getToken() {
         return auth(CFG.username(), CFG.password()).as(AuthResponse.class).getToken();
     }

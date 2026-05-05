@@ -1,13 +1,9 @@
 package mytests.booking.tests;
 
 import io.qameta.allure.Owner;
-import io.qameta.allure.restassured.AllureRestAssured;
-import io.restassured.RestAssured;
-import io.restassured.filter.log.RequestLoggingFilter;
-import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
-import mytests.booking.BookingApiClient;
+import mytests.booking.steps.BookingApiClient;
 import mytests.booking.config.BookingConfig;
 import mytests.booking.dto.AuthResponse;
 import mytests.booking.dto.BookingDTO;
@@ -19,14 +15,15 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import java.util.stream.Stream;
 import static io.restassured.RestAssured.given;
-import static mytests.booking.BookingApiClient.BOOKER_AUTH_URL;
-import static mytests.booking.BookingApiClient.BOOKER_BOOKING_URL;
+import static mytests.booking.steps.BookingApiClient.BOOKER_AUTH_URL;
+import static mytests.booking.steps.BookingApiClient.BOOKER_BOOKING_URL;
 import static mytests.booking.config.BookingApiConfig.getBookingConfig;
+import static mytests.booking.steps.BookingSteps.buildValidBookingRequestBody;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 
-public class BookingTest {
+public class BookingTest extends BaseApiTest {
 
     private static final BookingConfig CFG = getBookingConfig();
     private static final String
@@ -35,11 +32,6 @@ public class BookingTest {
     public static final Faker faker = new Faker();
     private final BookingApiClient bookingClient = new BookingApiClient();
 
-    @BeforeAll
-    static void setUp () {
-        RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
-        RestAssured.filters(new AllureRestAssured());
-    }
 
     @Test
     @DisplayName("Создание нового токена авторизации в API")
@@ -128,18 +120,16 @@ public class BookingTest {
     }
 
     @Test
-    @DisplayName("Апдейт бронирования в API")
+    @DisplayName("Полный апдейт бронирования в API")
     @Tags({@Tag("API"), @Tag("positive")})
     @Owner("nosnikitos")
     void updateBookingTest() {
-        BookingDTO createRequestBody = buildValidBookingRequestBody();
-        Response createResponse = bookingClient.createBooking(createRequestBody);
-
+        Response createResponse = bookingClient.createBooking(buildValidBookingRequestBody());
         assertThat(createResponse.statusCode()).isEqualTo(200);
 
         Integer bookingId = createResponse.as(BookingResponse.class).getBookingid();
         BookingDTO updateRequestBody = buildValidBookingRequestBody();
-        Response updateResponse = bookingClient.updateBooking(updateRequestBody, bookingId);
+        Response updateResponse = bookingClient.updateBooking(bookingId, updateRequestBody);
 
         assertThat(updateResponse.statusCode()).isEqualTo(200);
 
@@ -148,16 +138,33 @@ public class BookingTest {
         assertThat(updateResponseBody).usingRecursiveComparison().isEqualTo(updateRequestBody);
     }
 
-    private static BookingDTO buildValidBookingRequestBody() {
-        return BookingDTO.builder()
-                .firstname(faker.name().firstName())
-                .lastname(faker.name().lastName())
-                .totalprice(faker.number().numberBetween(1000, 10000))
-                .depositpaid(faker.bool().bool())
-                .bookingdates(new BookingDTO.BookingDates("2026-05-22", "2026-05-26"))
-                .additionalneeds(faker.football().competitions())
+    @Test
+    @DisplayName("Частичный апдейт бронирования в API - только firstname")
+    @Tags({@Tag("API"), @Tag("positive")})
+    @Owner("nosnikitos")
+    void partialUpdateBookingTest() {
+        BookingDTO createRequestBody = buildValidBookingRequestBody();
+        Response createResponse = bookingClient.createBooking(createRequestBody);
+        assertThat(createResponse.statusCode()).isEqualTo(200);
+
+        Integer bookingId = createResponse.as(BookingResponse.class).getBookingid();
+
+        String newName = faker.name().firstName();
+        BookingDTO updateRequestBody = BookingDTO
+                .builder()
+                .firstname(newName)
                 .build();
+
+        BookingDTO expectedPartialUpdateResponseBody = createRequestBody.toBuilder().firstname(newName).build();
+
+        Response partialUpdateResponse = bookingClient.partialUpdateBooking(bookingId, updateRequestBody);
+        assertThat(partialUpdateResponse.statusCode()).isEqualTo(200);
+
+        BookingDTO partialUpdateResponseBody = partialUpdateResponse.as(BookingDTO.class);
+        assertThat(partialUpdateResponseBody).usingRecursiveComparison().isEqualTo(expectedPartialUpdateResponseBody);
     }
+
+
     static Stream<Arguments> invalidAuthData() {
         return Stream.of(
                 Arguments.of("Неверный пароль", username, "xxx"),
