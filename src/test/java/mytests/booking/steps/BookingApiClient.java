@@ -1,12 +1,16 @@
 package mytests.booking.steps;
 
 import io.qameta.allure.Step;
+import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import mytests.booking.config.BookingConfig;
 import mytests.booking.dto.AuthRequest;
 import mytests.booking.dto.AuthResponse;
 import mytests.booking.dto.BookingDTO;
+
+import java.util.Map;
 
 import static io.restassured.RestAssured.given;
 import static mytests.booking.config.BookingApiConfig.getBookingConfig;
@@ -16,70 +20,76 @@ public class BookingApiClient {
 
 
     private static final BookingConfig CFG = getBookingConfig();
-    public static final String BOOKER_AUTH_URL = CFG.url() + "/auth";
-    public static final String BOOKER_BOOKING_URL = CFG.url() + "/booking";
+    private final RequestSpecification spec = new RequestSpecBuilder()
+            .setBaseUri(CFG.url())
+            .setContentType(ContentType.JSON)
+            .build();
 
-    @Step("Авторизироваться")
+    @Step("Выполнить запрос POST /auth")
     public Response auth(String user, String password) {
-        return given()
-                .contentType(ContentType.JSON)
+        return given(spec)
                 .body(new AuthRequest(user, password))
-                .post(BOOKER_AUTH_URL)
+                .post("/auth")
                 .then()
                 .extract().response();
     }
 
-    @Step("Создать бронирование")
+    @Step("Выполнить запрос POST /booking")
     public Response createBooking(BookingDTO booking) {
-        return given()
-                .contentType(ContentType.JSON)
+        return given(spec)
                 .body(booking)
-                .post(BOOKER_BOOKING_URL)
+                .post("/booking")
                 .then()
                 .extract().response();
     }
 
-    @Step("Полностью обновить бронирование")
+    @Step("Выполнить запрос PUT /booking/{id}")
     public Response updateBooking(Integer id, BookingDTO booking) {
-        return given()
+        return given(spec)
                 .cookie("token", getToken())
-                .contentType(ContentType.JSON)
                 .body(booking)
                 .pathParam("BOOKING_ID", id)
-                .put(BOOKER_BOOKING_URL + "/{BOOKING_ID}")
+                .put("/booking/{BOOKING_ID}")
                 .then()
                 .extract().response();
     }
 
-    @Step("Частично обновить бронирование")
+    @Step("Выполнить запрос PATCH /booking/{id}")
     public Response partialUpdateBooking(Integer id, BookingDTO booking) {
-        return given()
+        return given(spec)
                 .cookie("token", getToken())
-                .contentType(ContentType.JSON)
                 .body(booking)
                 .pathParam("BOOKING_ID", id)
-                .patch(BOOKER_BOOKING_URL + "/{BOOKING_ID}")
+                .patch("/booking/{BOOKING_ID}")
                 .then()
                 .extract().response();
     }
 
-    @Step("Удалить бронирование с id - {id}")
+    @Step("Выполнить запрос DELETE /booking/{id}")
     public Response deleteBooking(Integer id) {
-        return given()
+        return given(spec)
                 .cookie("token", getToken())
-                .contentType(ContentType.JSON)
                 .pathParam("BOOKING_ID", id)
-                .delete(BOOKER_BOOKING_URL + "/{BOOKING_ID}")
+                .delete("/booking/{BOOKING_ID}")
                 .then()
                 .extract().response();
     }
 
-    @Step("Получить бронирование по ID - {id}")
+    @Step("Выполнить запрос GET /booking{id}")
     public Response getBooking(Integer id) {
-        return given()
-                .contentType(ContentType.JSON)
+        return given(spec)
                 .pathParam("BOOKING_ID", id)
-                .get(BOOKER_BOOKING_URL + "/{BOOKING_ID}")
+                .get("/booking/{BOOKING_ID}")
+                .then()
+                .extract().response();
+    }
+
+    @Step("Выполнить запрос GET /booking")
+    public Response getBookings(Map<String, Object> queryParams) {
+        return given(spec)
+                .queryParams(queryParams)
+                .log().params()
+                .get("/booking")
                 .then()
                 .extract().response();
     }
