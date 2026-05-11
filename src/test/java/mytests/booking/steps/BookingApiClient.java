@@ -98,6 +98,4 @@ public class BookingApiClient {
     private String getToken() {
         return auth(CFG.username(), CFG.password()).as(AuthResponse.class).getToken();
     }
-
-
 }
